@@ -40,4 +40,14 @@ class HTTPService {
       return null;
     }
   }
+
+  Future<Response?> get(String path) async {
+    try {
+      final response = await _dio.get(path);
+      return response;
+    }
+    catch (e) {
+      return null;
+    }
+  }
 }
