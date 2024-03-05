@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/recip.dart';
+import 'package:myapp/pages/recipe_page.dart';
 import 'package:myapp/services/data_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,6 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _mealTypeFilter = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,9 +28,9 @@ class _HomePageState extends State<HomePage> {
   Widget _buildUI() {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [_recipTypeButton(), _reciplist()],
-        ),
+      child: Column(
+        children: [_recipTypeButton(), _reciplist()],
+      ),
     );
   }
 
@@ -42,26 +44,49 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.symmetric(
               horizontal: 5.0,
             ),
-            child: FilledButton(onPressed: () {}, child: const Text("Snack")),
+            child: FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _mealTypeFilter = "snack";
+                  });
+                },
+                child: const Text(" ☕Snack")),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 5.0,
             ),
-            child:
-                FilledButton(onPressed: () {}, child: const Text("Break Fast")),
+            child: FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _mealTypeFilter = "breakfast";
+                  });
+                },
+                child: const Text(" 🍵Break Fast")),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 5.0,
             ),
-            child: FilledButton(onPressed: () {}, child: const Text("Lunch")),
+            child: FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _mealTypeFilter = "lunch";
+                  });
+                },
+                child: const Text(" 🥡Lunch")),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 5.0,
             ),
-            child: FilledButton(onPressed: () {}, child: const Text("Dinner")),
+            child: FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _mealTypeFilter = "dinner";
+                  });
+                },
+                child: const Text(" 🍽️Dinner")),
           ),
         ],
       ),
@@ -71,7 +96,9 @@ class _HomePageState extends State<HomePage> {
   Widget _reciplist() {
     return Expanded(
         child: FutureBuilder(
-            future: DataService().getrecip(),
+            future: DataService().getrecip(
+              _mealTypeFilter,
+            ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -84,15 +111,28 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   Recip recipe = snapshot.data![index];
                   return ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return  RecipePage(recipe: recipe,);
+                          },
+                        ),
+                      );
+                    },
                     contentPadding: const EdgeInsets.only(top: 20.0),
                     isThreeLine: true,
-                    subtitle: Text("${recipe.cuisine}\nDifficulty: ${recipe.difficulty}"),
+                    subtitle: Text(
+                        "${recipe.cuisine}\nDifficulty: ${recipe.difficulty}"),
                     leading: Image.network(recipe.image),
                     title: Text(
                       recipe.name,
                     ),
-                    trailing: Text("${recipe.rating.toString()}⭐  ",
-                    style: const TextStyle(fontSize: 15),),
+                    trailing: Text(
+                      "${recipe.rating.toString()}⭐  ",
+                      style: const TextStyle(fontSize: 15),
+                    ),
                   );
                 },
               );
